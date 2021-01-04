@@ -1,0 +1,35 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+
+public class GameManager : MonoBehaviour
+{
+    [SerializeField]
+    bool isGameOver = false;
+    
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.R) && isGameOver == true) //if(Input.GetKeyDown(KeyCode.R) && isGameOver == true) (for PC)
+        {
+            SceneManager.LoadScene(1);//index of  current scene (build the scene for  index)
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && isGameOver == true)
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+    }
+}
