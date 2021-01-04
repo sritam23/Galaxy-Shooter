@@ -1,0 +1,63 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Laser : MonoBehaviour
+{
+    [SerializeField]
+    private float _speedlaser = 8.0f;
+    bool isEnemy = false;
+    
+    void Start()
+    {
+        //transform.position = new Vector3(transform.position.x, transform.position.y + 1.00f, 0);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (isEnemy)
+        {
+            MoveDown();
+        }
+        else
+        {
+            MoveUp();
+        }
+    }
+
+    void MoveUp()
+    {
+        transform.Translate(Vector3.up * _speedlaser * Time.deltaTime);
+        if (transform.position.y > 7.79f)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
+    void MoveDown()
+    {
+        transform.Translate(Vector3.down * _speedlaser * Time.deltaTime);
+        if (transform.position.y < -7.79f)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
+    public void Enemylaser()
+    {
+        isEnemy = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && isEnemy)
+        {
+            Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            if(player != null)
+            {
+                player.Playerlives();
+            }
+        }
+    }
+}
