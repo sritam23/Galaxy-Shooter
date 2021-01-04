@@ -1,0 +1,26 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TripleShot : MonoBehaviour
+{
+
+    [SerializeField]
+    private float _speedtriplelaser = 8.0f;
+
+    void Start()
+    {
+        transform.position = new Vector3(transform.position.x, transform.position.y + 1.00f, 0);
+    }
+
+    
+    void Update()
+    {
+
+        transform.Translate(Vector3.up * _speedtriplelaser * Time.deltaTime);
+        if (transform.position.y > 7.79f)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+}
