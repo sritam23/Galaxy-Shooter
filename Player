@@ -1,0 +1,210 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class Player : MonoBehaviour
+{
+    [SerializeField]
+    private int lives = 3;
+    [SerializeField]
+    private float _speed = 5.0f;
+    [SerializeField]
+    private float _speedMax = 10f;
+    [SerializeField]
+    private GameObject laserprefab;
+    [SerializeField]
+    private GameObject triplelaserprefab;
+    [SerializeField]
+    private float _firerate = 0.5f;
+    private float _canfire = -1.0f;
+    [SerializeField]
+    GameObject damage_right;
+    [SerializeField]
+    GameObject damage_left;
+    [SerializeField]
+    GameObject deathExplosion;
+    [SerializeField]
+    AudioClip laserSound;
+    
+    AudioSource audioSource;
+
+    [SerializeField]
+    GameObject shieldVisualizer;
+
+    UIManager handle;
+    
+    bool isTripleLaserActive = false;
+   
+    bool isSpeed = false;
+    
+    bool shieldActive = false;
+
+    [SerializeField]
+    int score = 0;
+    
+    
+    SpawnManagerEnemy playerDead;
+
+    private float _horizontalaxis = 0.0f, _verticalaxis = 0.0f;
+    void Start()
+    {
+        transform.position = new Vector3(0, 0, 0);
+        GameObject g = GameObject.FindGameObjectWithTag("Spawn Manager");
+        playerDead = g.GetComponent<SpawnManagerEnemy>();
+        handle = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
+        audioSource = GetComponent<AudioSource>();
+        if(audioSource == null)
+        {
+            Debug.LogError("Audio Source is NULL");
+        }
+        else
+        {
+            audioSource.clip = laserSound;
+        }
+
+        if(handle == null)
+        {
+            Debug.Log("Handle is NULL");
+        }
+    }
+
+    
+    void Update()
+    {
+        CalculateMovement();
+
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canfire )
+        {
+            _canfire = Time.time + _firerate;
+            FireLaser();
+        }
+    }
+
+ 
+
+    void CalculateMovement()
+    {
+        //movement code
+        _horizontalaxis = Input.GetAxis("Horizontal"); //CrossPlatformInputManager.GetAxis("Horizontal");// Input.GetAxis("Horizontal");
+        _verticalaxis = Input.GetAxis("Vertical"); //CrossPlatformInputManager.GetAxis("Vertical");//Input.GetAxis("Vertical");
+        if (isSpeed)
+        {
+            transform.Translate(Vector3.right * _speedMax * _horizontalaxis * Time.deltaTime);
+            transform.Translate(Vector3.up * _speedMax * _verticalaxis * Time.deltaTime);
+        }
+        else
+        {
+            transform.Translate(Vector3.right * _speed * _horizontalaxis * Time.deltaTime);
+            transform.Translate(Vector3.up * _speed * _verticalaxis * Time.deltaTime);
+        }
+        //movement within screen (restricting) :PLayer bound
+        if (transform.position.y > 0) //player can't exceed middle of screen.
+        {
+            transform.position = new Vector3(transform.position.x, 0, 0);
+        }
+
+        if (transform.position.x > 9.38f)
+        {
+            transform.position = new Vector3(-9.38f, transform.position.y, 0);
+        }
+        if (transform.position.x < -9.38f)
+        {
+            transform.position = new Vector3(9.38f, transform.position.y, 0);
+        }
+
+        if (transform.position.y < -3.76)
+        {
+            transform.position = new Vector3(transform.position.x, -3.76f, 0);
+        }
+
+      
+    }
+
+    public void trueSpeed()
+    {
+        isSpeed = true;
+        StartCoroutine(speedClose());
+    }
+    void FireLaser()
+    {
+        _canfire = Time.time + _firerate;
+        if (isTripleLaserActive)
+        {
+            Instantiate(triplelaserprefab, transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Instantiate(laserprefab, transform.position, Quaternion.identity);
+        }
+        audioSource.Play();
+    }
+
+    public void Playerlives()
+    {
+        if (shieldActive)
+        {
+            shieldVisualizer.SetActive(false);
+            shieldActive = false;
+            return;
+        }
+        else
+        {
+            lives--;
+            handle.UpdateLives(lives);
+            switch (lives)
+            {
+                case 2:
+                    damage_right.SetActive(true);
+                    break;
+                case 1:
+                    damage_left.SetActive(true);
+                    break;
+                
+                default:
+                    Debug.Log("Healthy");
+                    break;
+            }
+                
+        }
+        
+        if(lives < 1)
+        {
+            
+            playerDead.destroyPlayer();
+            Destroy(gameObject);
+        }
+    }
+
+    public void tripleActive()
+    {
+        isTripleLaserActive = true;
+        StartCoroutine(tripleClose());
+    }
+
+    public void shieldActivated()
+    {
+        shieldActive = true;
+        shieldVisualizer.SetActive(true);
+    }
+
+    IEnumerator tripleClose()
+    {
+        yield return new WaitForSeconds(5);
+        isTripleLaserActive = false;
+    }
+
+    IEnumerator speedClose()
+    {
+        yield return new WaitForSeconds(5);
+        isSpeed = false;
+    } 
+
+    public void AddScore(int point)
+    {
+        int addPoint = point;
+        score = score + addPoint;
+        handle.UpdateScore(score);
+    }
+}
