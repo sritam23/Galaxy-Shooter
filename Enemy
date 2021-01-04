@@ -1,0 +1,98 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Enemy : MonoBehaviour
+{
+   
+    [SerializeField]
+    private float _speedEnemy = 2f;
+    Player livescounter;
+    Animator explosion_enemy;
+    AudioSource audioSource;
+
+    [SerializeField]
+    GameObject _enemyLaser;
+
+    float canFire = -1f;
+    float fireRate = 0;
+    Laser[] fireEnemy;
+
+    private void Start()
+    {
+        transform.position = new Vector3(Random.Range(-9.1f, 9.1f), 7.7f, 0);
+        GameObject l = GameObject.FindGameObjectWithTag("Player");
+        livescounter = l.GetComponent<Player>();
+        audioSource = GetComponent<AudioSource>();
+        if (livescounter == null)
+        {
+            Debug.LogError("Enemy NULL");
+        }
+        explosion_enemy = GetComponent<Animator>();
+        if(explosion_enemy == null)
+        {
+            Debug.LogError("Animator NULL");
+        }
+    }
+
+    void Update()
+    {
+        Movement();
+        
+        if (Time.time > canFire) //enemy laser
+        {
+            
+            fireRate = Random.Range(3f, 7f);
+            canFire = Time.time + fireRate;
+            GameObject eLaser = Instantiate(_enemyLaser, transform.position, Quaternion.identity);
+            Laser[] fireEnemy = eLaser.GetComponentsInChildren<Laser>();
+
+            for(int i =0; i < fireEnemy.Length; i++)
+            {
+                fireEnemy[i].Enemylaser();
+            }
+        }   
+    }
+
+    void Movement()
+    {
+        transform.Translate(Vector3.down * _speedEnemy * Time.deltaTime);
+        if (transform.position.y < -5.8f)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        
+        if (other.CompareTag("Player"))
+        {
+            audioSource.Play();
+            livescounter.Playerlives();
+            _speedEnemy = 0;
+            Destroy(gameObject, 2.8f);
+            explosion_enemy.SetTrigger("ONEnemyDeath");
+        }
+
+        if (other.CompareTag("Laser"))
+        {
+            audioSource.Play();
+            livescounter.AddScore(10);
+            _speedEnemy = 0;
+            Destroy(gameObject, 2.8f);
+            Destroy(GetComponent<Collider2D>());
+            explosion_enemy.SetTrigger("ONEnemyDeath");
+            Destroy(other.gameObject);
+        }
+
+        if (other.CompareTag("Shield"))
+        {
+            //audioSource.Play();
+            _speedEnemy = 0;
+            explosion_enemy.SetTrigger("ONEnemyDeath");
+            Destroy(gameObject, 2.8f);
+            Destroy(other.gameObject);
+        }
+    }        
+}
