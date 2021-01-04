@@ -1,0 +1,22 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Explosion : MonoBehaviour
+{
+    
+    AudioSource exploSource;
+    
+    void Start()
+    {
+        exploSource = GetComponent<AudioSource>();
+        if (exploSource == null)
+        {
+            Debug.LogError("Explosion clip null");
+        }
+        exploSource.Play();
+        Destroy(gameObject, 3f);
+    }
+
+  
+}
