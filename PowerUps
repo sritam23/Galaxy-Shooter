@@ -1,0 +1,59 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PowerUps : MonoBehaviour
+{
+    [SerializeField]
+    float _speedTripleShot = 3f;
+    [SerializeField]
+    private int powerupID;
+    Player TripleCollected;
+    [SerializeField]
+    AudioClip _powerClip;
+    private void Start()
+    {
+        transform.position = new Vector3(Random.Range(-8f, 8f), 7, 0);
+        GameObject t = GameObject.FindGameObjectWithTag("Player");
+        TripleCollected = t.GetComponent<Player>();
+        if(TripleCollected == null)
+        {
+            Debug.LogError("PowerUp null");
+        }
+    }
+    private void Update()
+    {
+        transform.Translate(Vector3.down * _speedTripleShot * Time.deltaTime);
+
+        if (transform.position.y < -5.8f)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        AudioSource.PlayClipAtPoint(_powerClip, transform.position);
+        if (other.CompareTag("Player"))
+        {
+            switch (powerupID)
+            {
+                case 0:
+                    TripleCollected.tripleActive();
+                    Destroy(this.gameObject);
+                    break;
+                case 1:
+                    TripleCollected.trueSpeed();
+                    Destroy(this.gameObject);
+                    break;
+                case 2:
+                    TripleCollected.shieldActivated();
+                    Destroy(this.gameObject);
+                    break;
+                default:
+                    Debug.Log("no Powerups");
+                    break;
+            }      
+        }
+    }
+}
