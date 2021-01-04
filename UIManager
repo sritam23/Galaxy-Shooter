@@ -1,0 +1,104 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+
+public class UIManager : MonoBehaviour
+{
+    [SerializeField]
+    Text _scoredisplay;
+    [SerializeField]
+    Image lives_handle;
+    [SerializeField]
+    Sprite[] _livesDisplay;
+    [SerializeField]
+    GameObject GameOver;
+    [SerializeField]
+    GameObject ResetInstruction;
+    [SerializeField]
+    GameObject PauseMenu;
+    [SerializeField]
+    GameObject MainMenubutton;
+    [SerializeField]
+    GameObject Quitbutton;
+
+    int pcounter;
+    public int highscore;
+    int isHighScore;
+
+    GameManager gm;
+
+    private void Start()
+    {
+        GameOver.SetActive(false);
+        ResetInstruction.SetActive(false);
+        GameObject q = GameObject.FindGameObjectWithTag("GameManager");
+        gm = q.GetComponent<GameManager>();
+        
+
+        if(gm == null)
+        {
+            Debug.LogError("Game Manager NULL");
+        }
+
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            pcounter++;
+            PauseMenu.SetActive(true);
+            Time.timeScale = 0;
+            if (pcounter == 2)
+            {
+                Time.timeScale = 1;
+                PauseMenu.SetActive(false);
+                pcounter = 0;
+            }
+        }
+    }
+
+    public void switchtoMainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+    public void UpdateLives(int currentlives)
+    {
+        lives_handle.sprite = _livesDisplay[currentlives];
+       if(currentlives == 0)
+        {
+            HighScoreCheck();
+            gm.GameOver();
+            GameOver.SetActive(true);
+            ResetInstruction.SetActive(true);
+            MainMenubutton.SetActive(true);
+            Quitbutton.SetActive(true);           
+        }        
+    }
+
+    public void UpdateScore(int playerScore)
+    {
+        isHighScore = playerScore;
+        _scoredisplay.text = "Score: " + playerScore.ToString();
+    }
+
+    public void HighScoreCheck()
+    {
+        if(isHighScore > highscore)
+        {
+            highscore = isHighScore;
+            Debug.Log(highscore);
+            PlayerPrefs.SetInt("HighScore", highscore);
+        }
+    }
+
+    public void appQuit()
+    {
+        Application.Quit();
+    }
+
+
+}
