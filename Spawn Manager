@@ -1,0 +1,72 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpawnManagerEnemy : MonoBehaviour
+{
+    [SerializeField]
+    GameObject _enemyPrefab;
+    [SerializeField]
+    GameObject _eMinePrefab;
+    [SerializeField]
+    GameObject enemyContainer;
+    [SerializeField]
+    GameObject eMineContainer;
+    [SerializeField]
+    GameObject[] _powerupPrefab;
+    
+    
+    bool isAlive = true;
+    
+    public void StartSpawn()
+    {
+        StartCoroutine(spawnActive());
+        StartCoroutine(powerUps());
+        StartCoroutine(spawnMine());
+    }
+
+
+    IEnumerator spawnActive()
+    {
+        yield return new WaitForSeconds(2);
+        while (isAlive)
+        {
+            Vector3 postoSpawn = new Vector3(Random.Range(-8f, 8f), 7, 0);
+            GameObject newEnemy = Instantiate(_enemyPrefab, postoSpawn, Quaternion.identity);
+            newEnemy.transform.parent = enemyContainer.transform;
+            yield return new WaitForSeconds(5);
+        }
+        
+    }
+
+    IEnumerator powerUps()
+    {
+        yield return new WaitForSeconds(5);
+        while (isAlive)
+        {
+            int randomPowerUp = Random.Range(0, 3);
+            yield return new WaitForSeconds(Random.Range(3, 7));
+            Instantiate(_powerupPrefab[randomPowerUp]);  
+        }
+       
+    }
+
+    IEnumerator spawnMine()
+    {
+        yield return new WaitForSeconds(20);
+        while (isAlive)
+        {
+            Vector3 postoSpawn = new Vector3(Random.Range(-8f, 8f), 7, 0);
+            GameObject newMine = Instantiate(_eMinePrefab, postoSpawn, Quaternion.identity);
+            newMine.transform.parent = eMineContainer.transform;
+            yield return new WaitForSeconds(10);
+        }
+
+    }
+
+
+    public void destroyPlayer()
+    {
+        isAlive = false;
+    }
+}
