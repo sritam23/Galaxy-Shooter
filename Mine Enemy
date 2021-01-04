@@ -1,0 +1,60 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MineEnemy : MonoBehaviour
+{
+    [SerializeField]
+    float _speedMine = 4f;
+    float randomX;
+    [SerializeField]
+    GameObject explosionMine;
+
+    Player lives;
+    void Start()
+    {
+        randomX = Random.Range(-5f, 1);
+        transform.position = new Vector3(Random.Range(-9.1f, 9.1f), 7.7f, 0);
+        lives = GameObject.Find("Player").GetComponent<Player>();
+        if (lives == null) 
+        {
+            Debug.LogError("Mine NUll");
+        }
+    }
+
+    
+    void Update()
+    {
+        Movement();
+        
+        if (transform.position.y < randomX)
+        {
+            _speedMine = 0;
+            //transform.Translate(Vector3.down * _speedMine * Time.deltaTime);
+        }       
+    }
+
+    void Movement()
+    {
+        transform.Translate(Vector3.down * _speedMine * Time.deltaTime);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            lives.Playerlives();
+            Destroy(gameObject);
+            Instantiate(explosionMine, transform.position, Quaternion.identity);
+        }
+
+        if (other.CompareTag("Laser"))
+        {
+            lives.AddScore(5);
+            Instantiate(explosionMine, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+            Destroy(other.gameObject);
+            Instantiate(explosionMine, transform.position, Quaternion.identity);
+        }
+    }
+}
